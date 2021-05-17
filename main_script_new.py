@@ -2,8 +2,15 @@ from hapi import *
 import abscoef as abc
 import scipy.io as sio
 
-fname_List = ['mcd_output/FRT0000B3CC_07_IF165L_TRR3_mean.mat']
+
+# fname_List = ['mcd_output/FRT0000B3CC_07_IF165L_TRR3_mean.mat']
 # fname_List = ['mcd_output/HRS00004025_07_IF174L_TRR3.mat']
+
+# fname_List = ['mcd_output/HRL000040FF_07_IF183L_TRR3.mat']
+# fname_List = ['/Users/yukiitoh/src/matlab/mcd_crism/FRT0000AD16_07_IF165L_TRR3_mean.mat',
+#               '/Users/yukiitoh/src/matlab/mcd_crism/FRT0000B4B5_07_IF165L_TRR3_mean.mat']
+fname_List = ['/Users/yukiitoh/src/matlab/mcd_crism/FRT000037AE_07_IF166L_TRR3_mean.mat']
+
 
 # './mcd_output/FFC00017E04_01_IF254L_TRR3_l100t200.mat'
 # fname = '/Users/yukiitoh/src/matlab/mcd_crism/FFC000061C4_01_IF254L_TRR3_l100t200.mat'
@@ -11,7 +18,8 @@ fname_List = ['mcd_output/FRT0000B3CC_07_IF165L_TRR3_mean.mat']
 # set up parameters
 ########################################################################################################################
 # general parameters
-mol_names = ['co2']
+
+mol_names = ['co']
 # mol_name = 'co2'  # {'co2','co','h2o'}
 # diluent_mode_list = [2]
 # co2_diluent_mode = 1 # {1,2,3}
@@ -27,9 +35,9 @@ gamma0_cor = 1.0
 
 
 # voigt parameters
-nu_strt = 2200 # {2200 for {CO2,H2O}; 3800 for {CO}}
+nu_strt = 2200.  # {2200 for {CO2,H2O}; 3800 for {CO}}
 # nu_strt = 4800
-nu_end  = 12000  # {12000 for {CO2,H2O}; 4500 for {CO}}
+nu_end  = 12000.  # {12000 for {CO2,H2O}; 4500 for {CO}}
 # nu_end = 5200
 WavenumberStep = 0.0001 #1/cm
 WavenumberWing = 0
@@ -41,6 +49,8 @@ abstol_wing = 1e-4
 shape_profile = 'voigt' # {'voigt','rautian','rautian2'}
 beta_list = [5]
 beta = 5
+
+ema_mode = 'ctr'  # {'ctr','mean'}
 
 # Diluent_dict = {'co2':{'self':1}, 'co':... (need to determine later), 'h2o':{'air':1}}
 # Diluent = Diluent_dict[mol_name]
@@ -88,7 +98,10 @@ for fname in fname_List:
     # Absorption version 7
     p_atm_ar = abc.pascal2atm(data_ar['Pressure_Pa'])
     theta_in = ina_areoid
-    theta_em = ema_areoid
+    if ema_mode == 'mean':
+        theta_em = ema_areoid
+    elif ema_mode == 'ctr':
+        theta_em = data['ema_areoid_ctr'].reshape(-1)
     dsts_in = abc.get_path_length4spherical_layers(alt_brd_List, theta_in)
     dsts_em = abc.get_path_length4spherical_layers(alt_brd_List, theta_em)
 
@@ -96,21 +109,21 @@ for fname in fname_List:
         key_mix_rat = mol_name + '_vol_mix_rat'
         db_dir = 'data/data_' + mol_name
         if mol_name == 'co2':
-            mat_suffix = f'_abscoef_{mol_name}_{shape_profile}_w0_HW10_v7_diluent_{diluent_mode_co2}_{n_correction_factor}'
+            mat_suffix = f'_abscoef_{mol_name}_{shape_profile}_w0_HW10_v7_diluent_{diluent_mode_co2}_{n_correction_factor}_{ema_mode}'
             db_name = 'CO2_2000t12500'
             db_dir = 'data/data_' + mol_name
         elif mol_name == 'h2o':
             if opt_h2o == 1:
-                mat_suffix = f'_abscoef_{mol_name}_{shape_profile}_w0_HW10_v7_{opt_h2o}_{n_correction_factor}'
+                mat_suffix = f'_abscoef_{mol_name}_{shape_profile}_w0_HW10_v7_{opt_h2o}_{n_correction_factor}_{ema_mode}'
                 db_name = 'H2O_2000t12500'
                 db_dir = 'data/data_' + mol_name
             elif opt_h2o == 2:
-                mat_suffix = f'_abscoef_{mol_name}_{shape_profile}_w0_HW10_v7_{opt_h2o}_{n_correction_factor}'
+                mat_suffix = f'_abscoef_{mol_name}_{shape_profile}_w0_HW10_v7_{opt_h2o}_{n_correction_factor}_{ema_mode}'
                 db_name = 'Water_for_Mars_H12'
                 db_dir = 'data/data_h2o_mars'
         elif mol_name == 'co':
             db_name = 'CO_3500t5000'
-            mat_suffix = f'_abscoef_{mol_name}_{shape_profile}_w0_HW10_v7_{n_correction_factor}'
+            mat_suffix = f'_abscoef_{mol_name}_{shape_profile}_w0_HW10_v7_{n_correction_factor}_{ema_mode}'
             db_dir = 'data/data_' + mol_name
 
         db_begin(db_dir)
@@ -170,6 +183,6 @@ for fname in fname_List:
             print(elapsed,'[sec]')
 
             # if p_atm > 0.0050 or i==0:
-            if i==0:
+            if i == 0:
                 mat_fname = fname_split[0] + mat_suffix + f'_idx{i}' + '.mat'
                 sio.savemat(mat_fname,{'nu':nu, 'abscoef':abscoeff})
