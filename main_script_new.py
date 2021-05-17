@@ -3,7 +3,9 @@ import abscoef as abc
 import scipy.io as sio
 
 # fname_List = ['mcd_output/HRL000040FF_07_IF183L_TRR3.mat']
-fname_List = ['/Users/yukiitoh/src/matlab/mcd_crism/HRL000040A2_07_IF182L_TRR3_mean.mat']
+# fname_List = ['/Users/yukiitoh/src/matlab/mcd_crism/FRT0000AD16_07_IF165L_TRR3_mean.mat',
+#               '/Users/yukiitoh/src/matlab/mcd_crism/FRT0000B4B5_07_IF165L_TRR3_mean.mat']
+fname_List = ['/Users/yukiitoh/src/matlab/mcd_crism/FRT000037AE_07_IF166L_TRR3_mean.mat']
 
 # './mcd_output/FFC00017E04_01_IF254L_TRR3_l100t200.mat'
 # fname = '/Users/yukiitoh/src/matlab/mcd_crism/FFC000061C4_01_IF254L_TRR3_l100t200.mat'
@@ -27,9 +29,9 @@ gamma0_cor = 1.0
 
 
 # voigt parameters
-nu_strt = 3800  # {2200 for {CO2,H2O}; 3800 for {CO}}
+nu_strt = 2200.  # {2200 for {CO2,H2O}; 3800 for {CO}}
 # nu_strt = 4800
-nu_end  = 4500  # {12000 for {CO2,H2O}; 4500 for {CO}}
+nu_end  = 12000.  # {12000 for {CO2,H2O}; 4500 for {CO}}
 # nu_end = 5200
 WavenumberStep = 0.0001 #1/cm
 WavenumberWing = 0
