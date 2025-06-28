@@ -1,0 +1,8 @@
+.DS_Store
+.vscode/
+.venv/
+data/
+data2020/
+archive/
+__pycache__/
+*.code-workspace
